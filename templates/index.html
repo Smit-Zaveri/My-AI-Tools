@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IT - TOOLS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      type="text/javascript"
-      src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"
-    ></script>
-
     <style>
       @media (max-width: 768px) {
         .sidebar {
@@ -44,6 +39,19 @@
         .main-content.adjusted {
           margin-left: -64px; /* Width of the sidebar */
         }
+      }
+
+      .box {
+        position: absolute;
+        border: 2px solid red;
+        box-sizing: border-box;
+      }
+
+      .label {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2px 4px;
+        font-size: 12px;
       }
     </style>
   </head>
@@ -103,11 +111,6 @@
 
         <!-- Main content -->
         <main id="main-content" class="flex-1 p-4 overflow-y-auto main-content">
-          <!-- <div class="bg-green-600 p-4 rounded-lg mb-4">
-                    <h3 class="text-lg font-semibold mb-2">You like it-tools?</h3>
-                    <p>Give us a star on GitHub or follow us on Twitter. Thank you! ❤️</p>
-                </div> -->
-
           <h2 class="text-xl font-bold mb-4">All the tools</h2>
 
           <!-- Tool grid -->
@@ -130,89 +133,85 @@
         </main>
       </div>
     </div>
-
     <script>
-      const sidebarToggle = document.getElementById("sidebar-toggle");
-      const sidebar = document.getElementById("sidebar");
-      const mainContent = document.getElementById("main-content");
+      document.addEventListener("DOMContentLoaded", () => {
+        const sidebarToggle = document.getElementById("sidebar-toggle");
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
+        const videoFeedOutsideModal =
+          document.getElementById("video_feed_outside");
+        let modal = null; // Reference to the modal
 
-      sidebarToggle.addEventListener("click", () => {
-        sidebar.classList.toggle("active");
-        mainContent.classList.toggle("adjusted");
-      });
-
-      function openVideoWindow() {
-  const modal = document.createElement("div");
-  modal.innerHTML = `
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-gray-800 p-4 rounded-lg">
-            <h2 class="text-xl font-bold mb-4">Webcam Feed</h2>
-            <video id="video_feed" autoplay controls>
-    <source src="{{ url_for('video_feed') }}" type="multipart/x-mixed-replace">
-    Your browser does not support the video tag.
-</video>
-
-            <div class="mt-1">
-                <button id="close" class="bg-red-600 px-4 py-2 rounded-lg">Close</button>
-            </div>
-        </div>
-    </div>
-  `;
-
-  // Append modal to the body before starting the video
-  document.body.appendChild(modal);
-
-  // Start video and predictions
-  startVideoAndPredictions()
-    .then(() => {
-      const video = document.getElementById("webcam");
-      video.addEventListener("loadedmetadata", () => {
-        video.play().catch((error) => {
-          console.error("Error playing video:", error);
+        // Toggle sidebar and main content classes
+        sidebarToggle.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+          mainContent.classList.toggle("adjusted");
         });
+
+        // Function to create or get the modal
+        function getOrCreateModal() {
+          if (!modal) {
+            modal = document.createElement("div");
+            modal.className = "modal";
+            modal.innerHTML = `
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div class="bg-gray-800 p-4 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">Webcam Feed</h2>
+                <div class="video-container">
+                  <img id="video_feed" src="" alt="Video Feed">
+                </div>
+                <div class="mt-2">
+                  <button id="close" class="bg-red-600 px-4 py-2 rounded-lg">Close</button>
+                </div>
+              </div>
+            </div>
+          `;
+            document.body.appendChild(modal);
+
+            // Close button event listener
+            modal
+              .querySelector("#close")
+              .addEventListener("click", () => closeModal());
+          }
+          return modal;
+        }
+
+        // Open video window function
+        function openVideoWindow() {
+          const modal = getOrCreateModal();
+          updateVideoFeedSource(
+            modal.querySelector("#video_feed"),
+            "{{ url_for('video_feed') }}"
+          );
+          modal.style.display = "block"; // Show the modal
+        }
+
+        // Close modal function
+        function closeModal() {
+          if (modal) {
+            updateVideoFeedSource(modal.querySelector("#video_feed"), "");
+            modal.style.display = "none"; // Hide the modal
+          }
+        }
+
+        // Update video feed source
+        function updateVideoFeedSource(videoElement, source) {
+          if (videoElement) {
+            videoElement.src = source;
+          }
+        }
+
+        // Initialize outside video feed
+        if (videoFeedOutsideModal) {
+          updateVideoFeedSource(
+            videoFeedOutsideModal,
+            "{{ url_for('video_feed') }}"
+          );
+        }
+
+        // Expose openVideoWindow globally if needed
+        window.openVideoWindow = openVideoWindow;
       });
-    })
-    .catch((error) => {
-      console.error("Error starting video and predictions:", error);
-    });
-
-  // Handle modal close button
-  document.getElementById("close").addEventListener("click", () => {
-    // Stop video and predictions
-    stopVideoAndPredictions();
-    document.body.removeChild(modal);
-  });
-}
-
-async function startVideoAndPredictions() {
-  try {
-    // Request to Flask server to start predictions
-    const response = await fetch("/start_detection", { method: "POST" });
-    if (!response.ok) {
-      throw new Error("Failed to start predictions: " + response.status);
-    }
-    const data = await response.json();
-    console.log("Prediction started:", data);
-  } catch (error) {
-    console.error("Error starting predictions:", error);
-    throw error; // Rethrow to propagate the error up
-  }
-}
-
-async function stopVideoAndPredictions() {
-  try {
-    // Request to Flask server to stop predictions
-    const response = await fetch("/stop-predictions", { method: "POST" });
-    if (!response.ok) {
-      throw new Error("Failed to stop predictions: " + response.status);
-    }
-    console.log("Predictions stopped successfully.");
-  } catch (error) {
-    console.error("Error stopping predictions:", error);
-    throw error; // Rethrow to propagate the error up
-  }
-}
-
     </script>
   </body>
 </html>

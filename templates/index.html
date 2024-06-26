@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IT - TOOLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"
+    ></script>
+
+    <style>
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          width: 100%;
+          padding-left: 0;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .sidebar {
+          transform: translateX(0);
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+          transform: translateX(-100%);
+        }
+
+        .main-content {
+          transition: margin-left 0.3s ease-in-out;
+        }
+
+        .main-content.adjusted {
+          margin-left: -64px; /* Width of the sidebar */
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200">
+    <div class="flex flex-col h-screen">
+      <!-- Header -->
+      <header class="bg-gray-800 p-4 flex justify-between items-center">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+          <h1 class="text-xl font-bold text-green-500">IT - TOOLS</h1>
+        </div>
+        <div class="flex items-center">
+          <input
+            type="text"
+            placeholder="Search Ctrl + K"
+            class="bg-gray-700 px-4 py-2 rounded-lg mr-4"
+          />
+          <select class="bg-gray-700 px-4 py-2 rounded-lg mr-4">
+            <option>English</option>
+          </select>
+          <button class="bg-green-600 px-4 py-2 rounded-lg">
+            Buy me a coffee ❤️
+          </button>
+        </div>
+      </header>
+
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-gray-800 w-64 p-4 md:block">
+          <h2 class="text-lg font-semibold mb-4">Handy tools for developers</h2>
+          <nav>
+            <ul>
+              <li class="mb-2">Crypto</li>
+              <li class="mb-2">Converter</li>
+              <li class="mb-2">Web</li>
+              <li class="mb-2">Images & Videos</li>
+              <li class="mb-2">Development</li>
+              <!-- Add more menu items as needed -->
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main id="main-content" class="flex-1 p-4 overflow-y-auto main-content">
+          <!-- <div class="bg-green-600 p-4 rounded-lg mb-4">
+                    <h3 class="text-lg font-semibold mb-2">You like it-tools?</h3>
+                    <p>Give us a star on GitHub or follow us on Twitter. Thank you! ❤️</p>
+                </div> -->
+
+          <h2 class="text-xl font-bold mb-4">All the tools</h2>
+
+          <!-- Tool grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Example tool cards -->
+            <div
+              onclick="openVideoWindow()"
+              class="bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500"
+            >
+              <h3 class="text-lg font-semibold mb-2">
+                Gender and Age Detection
+              </h3>
+              <p class="text-sm">
+                Create random strings with custom parameters
+              </p>
+            </div>
+
+            <!-- Add more tool cards as needed -->
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const sidebarToggle = document.getElementById("sidebar-toggle");
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("main-content");
+
+      sidebarToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+        mainContent.classList.toggle("adjusted");
+      });
+
+      function openVideoWindow() {
+  const modal = document.createElement("div");
+  modal.innerHTML = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-gray-800 p-4 rounded-lg">
+            <h2 class="text-xl font-bold mb-4">Webcam Feed</h2>
+            <video id="video_feed" autoplay controls>
+    <source src="{{ url_for('video_feed') }}" type="multipart/x-mixed-replace">
+    Your browser does not support the video tag.
+</video>
+
+            <div class="mt-1">
+                <button id="close" class="bg-red-600 px-4 py-2 rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+  `;
+
+  // Append modal to the body before starting the video
+  document.body.appendChild(modal);
+
+  // Start video and predictions
+  startVideoAndPredictions()
+    .then(() => {
+      const video = document.getElementById("webcam");
+      video.addEventListener("loadedmetadata", () => {
+        video.play().catch((error) => {
+          console.error("Error playing video:", error);
+        });
+      });
+    })
+    .catch((error) => {
+      console.error("Error starting video and predictions:", error);
+    });
+
+  // Handle modal close button
+  document.getElementById("close").addEventListener("click", () => {
+    // Stop video and predictions
+    stopVideoAndPredictions();
+    document.body.removeChild(modal);
+  });
+}
+
+async function startVideoAndPredictions() {
+  try {
+    // Request to Flask server to start predictions
+    const response = await fetch("/start_detection", { method: "POST" });
+    if (!response.ok) {
+      throw new Error("Failed to start predictions: " + response.status);
+    }
+    const data = await response.json();
+    console.log("Prediction started:", data);
+  } catch (error) {
+    console.error("Error starting predictions:", error);
+    throw error; // Rethrow to propagate the error up
+  }
+}
+
+async function stopVideoAndPredictions() {
+  try {
+    // Request to Flask server to stop predictions
+    const response = await fetch("/stop-predictions", { method: "POST" });
+    if (!response.ok) {
+      throw new Error("Failed to stop predictions: " + response.status);
+    }
+    console.log("Predictions stopped successfully.");
+  } catch (error) {
+    console.error("Error stopping predictions:", error);
+    throw error; // Rethrow to propagate the error up
+  }
+}
+
+    </script>
+  </body>
+</html>

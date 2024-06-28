@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Blur Faces{% endblock %}
+{% block content %}
+  <div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold mb-4">Blur Faces</h2>
+
+    <form action="/blurfaces" method="post" enctype="multipart/form-data" class="mb-8">
+      <div class="mb-4">
+        <label class="block text-gray-700 font-bold mb-2" for="video">
+          Upload a video file
+        </label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="video" type="file" name="video" accept="video/*">
+      </div>
+      <div class="flex items-center justify-between">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+          Blur Faces
+        </button>
+      </div>
+    </form>
+
+    {% if video_path %}
+      <!-- <div class="mb-4">
+        <video controls width="640" height="480" class="shadow-lg">
+          <source src="{{ url_for('serve_video', path=video_path) }}" type="video/avi">
+          Your browser does not support the video tag.
+        </video>
+      </div> -->
+
+      <div class="mt-4">
+        <a href="{{ url_for('download_file', path=video_path) }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Download Blurred Video
+        </a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

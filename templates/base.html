@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          width: 100%;
+          padding-left: 0;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .sidebar {
+          transform: translateX(0);
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+          transform: translateX(-100%);
+        }
+
+        .main-content {
+          transition: margin-left 0.3s ease-in-out;
+        }
+
+        .main-content.adjusted {
+          margin-left: -64px;
+          /* Width of the sidebar */
+        }
+      }
+
+      .box {
+        position: absolute;
+        border: 2px solid red;
+        box-sizing: border-box;
+      }
+
+      .label {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2px 4px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-900 text-gray-200">
+    <div class="flex flex-col h-screen">
+      <!-- Header -->
+      <header class="bg-gray-800 p-4 flex justify-between items-center">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+          <a href="/" class="text-xl font-bold text-green-500">IT - TOOLS</a>
+        </div>
+        <div class="flex items-center">
+          <input
+            type="text"
+            placeholder="Search Ctrl + K"
+            class="bg-gray-700 px-4 py-2 rounded-lg mr-4"
+          />
+          <select class="bg-gray-700 px-4 py-2 rounded-lg mr-4">
+            <option>English</option>
+          </select>
+          <button class="bg-green-600 px-4 py-2 rounded-lg">
+            Buy me a coffee ❤️
+          </button>
+        </div>
+      </header>
+
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-gray-800 w-64 p-4 md:block">
+          <h2 class="text-lg font-semibold mb-4">Handy tools for developers</h2>
+          <nav>
+            <ul>
+              <li class="mb-2">Crypto</li>
+              <li class="mb-2">Converter</li>
+              <li class="mb-2">Web</li>
+              <li class="mb-2">Images & Videos</li>
+              <li class="mb-2">Development</li>
+              <!-- Add more menu items as needed -->
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main id="main-content" class="flex-1 p-4 overflow-y-auto main-content">
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+    <script src="../static/script.js"></script>
+    <script>
+
+      function openVideoWindow() {
+        const modal = getOrCreateModal();
+        updateVideoFeedSource(
+          modal.querySelector("#video_feed"),
+          "{{ url_for('video_feed') }}"
+        );
+        modal.style.display = "block"; // Show the modal
+      }
+
+      // Close modal function
+      function closeModal() {
+        if (modal) {
+          updateVideoFeedSource(modal.querySelector("#video_feed"), "");
+          modal.style.display = "none"; // Hide the modal
+        }
+      }
+      function updateVideoFeedSource(videoElement, source) {
+        if (videoElement) {
+          videoElement.src = source;
+        }
+      }
+
+      // Initialize outside video feed
+      if (videoFeedOutsideModal) {
+        updateVideoFeedSource(
+          videoFeedOutsideModal,
+          "{{ url_for('video_feed') }}"
+        );
+      }
+    </script>
+  </body>
+</html>

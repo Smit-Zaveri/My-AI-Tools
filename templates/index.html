@@ -1,25 +1,26 @@
-{% extends "base.html" %} {% block title %}IT - TOOLS{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}IT - TOOLS{% endblock %}
+{% block content %}
 <h2 class="text-xl font-bold mb-4">All the tools</h2>
 
 <!-- Tool grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
   <!-- Example tool cards -->
-  <div onclick="openVideoWindow()"
-    class="bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500">
+  <div onclick="openVideoWindow()" class="tool-card bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500">
     <h3 class="text-lg font-semibold mb-2">Gender and Age Detection</h3>
     <p class="text-sm">Create random strings with custom parameters</p>
   </div>
-  <div onclick="window.location.href='/blurfaces'"
-    class="bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500">
+  <div onclick="window.location.href='/blurfaces'" class="tool-card bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500">
     <h3 class="text-lg font-semibold mb-2">Blur Faces smit</h3>
     <p class="text-sm">Create random strings with custom parameters</p>
-</div>
-
+  </div>
+  <div onclick="window.location.href='/pdf_reader'" class="tool-card bg-gray-800 p-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:border-green-500">
+    <h3 class="text-lg font-semibold mb-2">PDF Reader and Q&A</h3>
+    <p class="text-sm">Create random strings with custom parameters</p>
+  </div>
 
   <!-- Add more tool cards as needed -->
 </div>
 {% endblock %}
 {% block script %}
-
 {% endblock %}

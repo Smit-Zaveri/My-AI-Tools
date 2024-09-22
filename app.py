@@ -1,8 +1,12 @@
+import os
 from flask import Flask, render_template, request, send_file, Response, redirect, url_for
 import tempfile
-import os
-from age_gender import generate_frames, get_gender_predictions, get_age_predictions
+from age_gender import generate_frames
 from blur_faces import process_video
+from pdf_reader import extract_text_from_pdf, answer_question
+
+# Set the environment variable to disable oneDNN custom operations
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 app = Flask(__name__)
 
@@ -38,6 +42,21 @@ def download_file(path):
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/pdf_reader', methods=['GET', 'POST'])
+def pdf_reader():
+    if request.method == 'POST':
+        pdf_file = request.files['pdf']
+        temp_dir = tempfile.mkdtemp()
+        pdf_path = os.path.join(temp_dir, pdf_file.filename)
+        pdf_file.save(pdf_path)
+
+        text = extract_text_from_pdf(pdf_path)
+        question = request.form['question']
+        answer = answer_question(text, question)
+
+        return render_template('pdf_reader.html', text=text, question=question, answer=answer)
+    return render_template('pdf_reader.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -83,15 +83,13 @@
         <div class="flex items-center">
           <input
             type="text"
+            id="search-input"
             placeholder="Search Ctrl + K"
             class="bg-gray-700 px-4 py-2 rounded-lg mr-4"
           />
           <select class="bg-gray-700 px-4 py-2 rounded-lg mr-4">
             <option>English</option>
           </select>
-          <button class="bg-green-600 px-4 py-2 rounded-lg">
-            Buy me a coffee ❤️
-          </button>
         </div>
       </header>
 
@@ -119,6 +117,26 @@
     </div>
     <script src="../static/script.js"></script>
     <script>
+      document.getElementById('sidebar-toggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('main-content').classList.toggle('adjusted');
+      });
+
+      document.getElementById('search-input').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const toolCards = document.querySelectorAll('.tool-card');
+        toolCards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(filter) ? '' : 'none';
+        });
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'k') {
+          event.preventDefault();
+          document.getElementById('search-input').focus();
+        }
+      });
 
       function openVideoWindow() {
         const modal = getOrCreateModal();
@@ -136,6 +154,7 @@
           modal.style.display = "none"; // Hide the modal
         }
       }
+
       function updateVideoFeedSource(videoElement, source) {
         if (videoElement) {
           videoElement.src = source;

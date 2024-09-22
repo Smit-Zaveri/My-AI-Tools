@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}PDF Reader and Q&A{% endblock %}
+{% block content %}
+  <div class="container mx-auto px-4 py-8">
+    <h2 class="text-xl font-bold mb-4">PDF Reader and Q&A</h2>
+            <form action="{{ url_for('pdf_reader') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label for="pdf" class="block text-sm font-medium text-gray-200">Upload PDF</label>
+                    <input type="file" id="pdf" name="pdf" class="mt-1 p-2 bg-gray-700 text-gray-200 rounded-md">
+                </div>
+                <div class="mb-4">
+                    <label for="question" class="block text-sm font-medium text-gray-200">Question</label>
+                    <input type="text" id="question" name="question" class="mt-1 p-2 bg-gray-700 text-gray-200 rounded-md w-full">
+                </div>
+                <button type="submit" class="bg-green-500 text-gray-900 p-2 rounded-md">Submit</button>
+            </form>
+            {% if text %}
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Extracted Text</h3>
+                    <pre class="bg-gray-700 p-4 rounded-md">{{ text }}</pre>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Answer</h3>
+                    <p class="bg-gray-700 p-4 rounded-md">{{ answer }}</p>
+                </div>
+            {% endif %}
+  </div>
+{% endblock %}
